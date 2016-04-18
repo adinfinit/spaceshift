@@ -278,12 +278,31 @@ func (ship *Ship) Update(dt float64, input Input, world *World) {
 		ship.Exploded = true
 		ship.ResetAfter = 3
 	}
+
+	if (math.Abs(ship.Position.X) > world.Active.HalfSize.X) ||
+		(math.Abs(ship.Position.Y) > world.Active.HalfSize.Y) {
+		if !ship.Exploded {
+			ship.Exploded = true
+			ship.ResetAfter = 3
+			ship.Energy = -1
+		}
+	}
 	if ship.Exploded {
 		ship.ResetAfter -= dt
 		if ship.ResetAfter < 0 {
 			ship.Reset()
 			return
 		}
+
+		ship.Velocity.X += dt * ship.Force.X / ship.Mass
+		ship.Velocity.Y += dt * ship.Force.Y / ship.Mass
+
+		ship.Velocity.X *= 0.9
+		ship.Velocity.Y *= 0.9
+
+		ship.Position.X += dt * ship.Velocity.X
+		ship.Position.Y += dt * ship.Velocity.Y
+
 		return
 	}
 

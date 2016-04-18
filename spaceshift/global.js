@@ -124,7 +124,7 @@ package("global", function(global){
 		for(var i = 0; i < ships.length; i++){
 			var ship = ships[i];
 			if(ship.ai){
-				context.fillText(ship.id + " = " + ship.points + "[AI]", x, y);
+				context.fillText(ship.id + " = " + ship.points + " [AI]", x, y);
 			} else {
 				context.fillText(ship.id + " = " + ship.points, x, y);
 			}
