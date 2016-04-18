@@ -39,6 +39,7 @@ package("spaceshift", function(spaceshift){
 				ship.energy = sship.energy;
 				ship.cooldown = sship.cooldown;
 				ship.invulnerable = sship.invulnerable;
+				ship.exploded = sship.exploded;
 
 				world.ships[ship.id] = ship;
 			});
@@ -100,6 +101,7 @@ package("spaceshift", function(spaceshift){
 		this.energy = 1;
 		this.cooldown = 1;
 		this.invulnerable = 3;
+		this.exploded = false;
 	}
 
 	Ship.prototype = {
@@ -137,28 +139,30 @@ package("spaceshift", function(spaceshift){
 			{
 				context.translate(-ship.position.x, -ship.position.y);
 
-				if(ship.invulnerable > 0) {
-					context.beginPath()
-					context.arc(0, 0, 10, 0, g.TAU);
+				if(!ship.exploded) {
+					if(ship.invulnerable > 0) {
+						context.beginPath()
+						context.arc(0, 0, 10, 0, g.TAU);
 
-					var alpha = ship.invulnerable > 1 ? 1 : ship.invulnerable;
-					context.strokeStyle = "hsla(" + (g.R(90, 150)|0) + ", 80%, 80%, " + alpha + ")";
-					context.stroke();
-				}
+						var alpha = ship.invulnerable > 1 ? 1 : ship.invulnerable;
+						context.strokeStyle = "hsla(" + (g.R(90, 150)|0) + ", 80%, 80%, " + alpha + ")";
+						context.stroke();
+					}
 
-				{
-					var W = 16, H = 1;
-					var w = W * (ship.energy < 0 ? 0 : ship.energy);
-					context.beginPath();
-					context.rect(-W/2, -8, w, H);
-					context.fillStyle = "#aaf";
-					context.fill();
+					{
+						var W = 16, H = 1;
+						var w = W * (ship.energy < 0 ? 0 : ship.energy);
+						context.beginPath();
+						context.rect(-W/2, -8, w, H);
+						context.fillStyle = "#aaf";
+						context.fill();
 
-					context.beginPath();
-					context.rect(-W/2, -8, W, H);
-					context.strokeStyle = "#aaf";
-					context.lineWidth = 0.1;
-					context.stroke();
+						context.beginPath();
+						context.rect(-W/2, -8, W, H);
+						context.strokeStyle = "#aaf";
+						context.lineWidth = 0.1;
+						context.stroke();
+					}
 				}
 
 				context.fillStyle = "#ccc";
@@ -194,6 +198,22 @@ package("spaceshift", function(spaceshift){
 					context.lineWidth = 1;
 					context.strokeStyle = "hsla(0, 100%, 50%, " + cooldown + ")";
 					context.stroke();
+				}
+
+				if(ship.exploded) {
+					var t = 0;
+					context.beginPath();
+					context.moveTo(g.R(-8,8),g.R(-8,8));
+					while(t < g.TAU){
+						var dx = Math.cos(t)*g.R(1,16);
+						var dy = Math.sin(t)*g.R(1,16);
+						context.lineTo(dx, dy);
+						t += g.R(0.5, 0.9);
+					}
+					context.closePath();
+
+					context.fillStyle = "hsla(" +(g.R(-90, 90)|0) + ", 100%, 50%, 0.7)";
+					context.fill();
 				}
 			}
 			context.restore();

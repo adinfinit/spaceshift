@@ -237,6 +237,8 @@ type Ship struct {
 	Energy       float64 `json:"energy"`       // 0..1
 	Cooldown     float64 `json:"cooldown"`     // in seconds
 	Invulnerable float64 `json:"invulnerable"` // in seconds
+
+	Exploded bool `json:"exploded"`
 }
 
 func (ship *Ship) ClearForces() {
@@ -253,6 +255,14 @@ func (ship *Ship) Update(dt float64, input Input, world *World) {
 
 	if ship.Energy < 1 {
 		ship.Energy += dt * 0.05
+	}
+
+	if ship.AI {
+		ship.Energy -= dt * 0.2
+	}
+
+	if ship.Energy < 0 {
+		ship.Exploded = true
 	}
 
 	if ship.Cooldown < 0 {
