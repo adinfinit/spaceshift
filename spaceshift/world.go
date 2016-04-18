@@ -81,7 +81,7 @@ func (world *World) SpawnAI() {
 		Mass:        100,
 
 		Energy:       1,
-		Cooldown:     1,
+		Cooldown:     3,
 		Invulnerable: 3,
 
 		AI: true,

@@ -160,6 +160,13 @@ package("spaceshift", function(spaceshift){
 				var color = (parseInt(ship.id) * 1.618 * 360 / g.TAU) | 0;
 				context.fillStyle = "hsla(" + color + ", 70%, 70%, 1)";
 				context.fill();
+
+				if(ship.cooldown > 0) {
+					var cooldown = ship.cooldown > 1 ? 0.5 : ship.cooldown / 2;
+					context.lineWidth = 1;
+					context.strokeStyle = "hsla(0, 100%, 50%, " + cooldown + ")";
+					context.stroke();
+				}
 			}
 			context.restore();
 		}
