@@ -100,6 +100,11 @@ package("spaceshift", function(spaceshift){
 			context.save();
 			{
 				context.translate(-ship.position.x, -ship.position.y);
+
+				context.fillStyle = "#ccc";
+				context.font = "8px Courier";
+				context.fillText(ship.id, -6, -6);
+
 				context.rotate(ship.orientation);
 
 				if(ship.force.length2() > 0.1){
