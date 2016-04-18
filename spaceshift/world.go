@@ -2,6 +2,7 @@ package spaceshift
 
 import (
 	"fmt"
+	"math"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -184,9 +185,32 @@ func (world *World) Update(dt float64) {
 		delete(state.Input, id)
 	}
 
+	newbullets := state.Bullets[:0]
 	for _, bullet := range state.Bullets {
 		bullet.Update(dt)
+
+		removebullet := false
+		for _, ship := range state.Ships {
+			if ship.ID == bullet.Shooter {
+				continue
+			}
+			if g.Dist(ship.Position, bullet.Position) < 4 {
+				ship.Energy -= 0.1
+				removebullet = true
+			}
+		}
+
+		if removebullet {
+			continue
+		}
+
+		if (math.Abs(bullet.Position.X) < state.HalfSize.X) &&
+			(math.Abs(bullet.Position.Y) < state.HalfSize.Y) {
+			newbullets = append(newbullets, bullet)
+		}
+
 	}
+	state.Bullets = newbullets
 }
 
 type Input struct {
@@ -226,6 +250,10 @@ func (ship *Ship) IsInvulnerable() bool {
 func (ship *Ship) Update(dt float64, input Input, world *World) {
 	ship.Invulnerable -= dt
 	ship.Cooldown -= dt
+
+	if ship.Energy < 1 {
+		ship.Energy += dt * 0.05
+	}
 
 	if ship.Cooldown < 0 {
 		ship.Cooldown = 0

@@ -148,7 +148,7 @@ package("spaceshift", function(spaceshift){
 
 				{
 					var W = 16, H = 1;
-					var w = W * ship.energy;
+					var w = W * (ship.energy < 0 ? 0 : ship.energy);
 					context.beginPath();
 					context.rect(-W/2, -8, w, H);
 					context.fillStyle = "#aaf";
