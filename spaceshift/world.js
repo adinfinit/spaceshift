@@ -8,6 +8,8 @@ package("spaceshift", function(spaceshift){
 		this.ships = {};
 		this.player = "";
 		this.bullets = [];
+
+		this.halfsize = new g.V2(200, 200);
 	}
 
 	World.prototype = {
@@ -39,10 +41,22 @@ package("spaceshift", function(spaceshift){
 				ship.invulnerable = sship.invulnerable;
 
 				world.ships[ship.id] = ship;
-			})
+			});
+
+			world.halfsize.x = state.halfsize.x;
+			world.halfsize.y = state.halfsize.y;
 		},
 		render: function(dt, context){
 			var world = this;
+
+			context.lineWidth = 3;
+			context.strokeStyle = "#d66";
+			context.beginPath();
+			context.rect(
+				-world.halfsize.x, -world.halfsize.y,
+				2*world.halfsize.x, 2*world.halfsize.y);
+			context.stroke();
+
 
 			foreach(world.ships, function(ship){ ship.render(dt, context); });
 			//Object.values(world.bullets).
@@ -119,7 +133,6 @@ package("spaceshift", function(spaceshift){
 
 				{
 					var W = 16, H = 1;
-					ship.energy = 0.3;
 					var w = W * ship.energy;
 					context.beginPath();
 					context.rect(-W/2, -8, w, H);

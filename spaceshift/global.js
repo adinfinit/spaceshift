@@ -28,7 +28,7 @@ package("global", function(global){
 	function listen(ev){
 		var message = JSON.parse(ev.data);
 		if(message.Type == "welcome"){
-			global.world.playerID = message.Data
+			global.input.id = message.Data
 		} else if (message.Type == "sync") {
 			global.world.sync(message.Data)
 		}
@@ -62,6 +62,11 @@ package("global", function(global){
 			context.translate(global.view.size.x/2, global.view.size.y/2);
 			context.SCALE = 2;
 			context.scale(context.SCALE,context.SCALE);
+
+			var player = global.world.ships[global.input.id];
+			if(player){
+				context.translate(player.position.x, player.position.y);
+			}
 
 			context.fillStyle = "#fff";
 			context.fillRect(-1,-1,1,1);

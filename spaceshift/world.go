@@ -15,13 +15,16 @@ type State struct {
 	Input   map[ID]Input `json:"-"`
 	Ships   map[ID]*Ship `json:"ships"`
 	Bullets []*Bullet    `json:"bullets"`
+
+	HalfSize g.V2 `json:"halfsize"`
 }
 
 func (cur *State) Clone() *State {
 	next := &State{
-		Input:   make(map[ID]Input, len(cur.Input)),
-		Ships:   make(map[ID]*Ship, len(cur.Ships)),
-		Bullets: make([]*Bullet, 0, len(cur.Bullets)),
+		Input:    make(map[ID]Input, len(cur.Input)),
+		Ships:    make(map[ID]*Ship, len(cur.Ships)),
+		Bullets:  make([]*Bullet, 0, len(cur.Bullets)),
+		HalfSize: cur.HalfSize,
 	}
 
 	for id, input := range cur.Input {
@@ -48,8 +51,9 @@ type World struct {
 func NewWorld() *World {
 	world := &World{
 		Active: &State{
-			Input: make(map[ID]Input),
-			Ships: make(map[ID]*Ship),
+			Input:    make(map[ID]Input),
+			Ships:    make(map[ID]*Ship),
+			HalfSize: g.V2{200, 200},
 		},
 	}
 
