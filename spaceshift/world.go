@@ -2,6 +2,7 @@ package spaceshift
 
 import (
 	"fmt"
+	"log"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -31,11 +32,6 @@ func (cur *State) Clone() *State {
 		x := *ship
 		next.Ships[id] = &x
 	}
-	//for _, bullet := range current.Bullets {
-	//	x := *bullet
-	//	next.Bullets[id] = &x
-	//
-	//}
 
 	return next
 }
@@ -84,12 +80,32 @@ func (world *World) SpawnAI() {
 		Velocity:    g.V2{g.R(-10, 10), g.R(-10, 10)},
 		Force:       g.V2{0, 0},
 		Mass:        100,
+
+		AI: true,
 	}
 	world.Active.Input[ship.ID] = Input{
 		Thrust: 1,
 		Turn:   1,
 	}
 	world.Active.Ships[ship.ID] = ship
+}
+
+func (world *World) SpawnPlayer() ID {
+	id := world.GrabID()
+
+	ship := &Ship{
+		ID: id,
+
+		Orientation: g.R(0, g.Tau),
+		Position:    g.V2{0, 0},
+		Velocity:    g.V2{0, 0},
+		Force:       g.V2{0, 0},
+		Mass:        100,
+	}
+	world.Active.Input[ship.ID] = Input{}
+	world.Active.Ships[ship.ID] = ship
+
+	return id
 }
 
 func (world *World) Run() {
@@ -120,10 +136,10 @@ func (world *World) Update(dt float64) {
 }
 
 type Input struct {
-	ID     ID
-	Turn   float64 // -1, 1
-	Thrust float64 // -1, 1
-	Fire   bool
+	ID     ID      `json:"id"`
+	Turn   float64 `json:"turn"`   // -1, 1
+	Thrust float64 `json:"thrust"` // -1, 1
+	Fire   bool    `json:"fire"`
 }
 
 type Ship struct {
@@ -133,6 +149,8 @@ type Ship struct {
 	Velocity    g.V2    `json:"velocity"`
 	Force       g.V2    `json:"force"`
 	Mass        float64 `json:"mass"`
+
+	AI bool
 }
 
 func (ship *Ship) Update(dt float64, input Input) {
@@ -142,6 +160,10 @@ func (ship *Ship) Update(dt float64, input Input) {
 
 	ship.Force.X = -10000 * g.U(input.Thrust) * g.Cos(ship.Orientation)
 	ship.Force.Y = -10000 * g.U(input.Thrust) * g.Sin(ship.Orientation)
+
+	if !ship.AI {
+		log.Println(input.ID, input.Thrust, ship.Force.X, ship.Force.Y)
+	}
 
 	ship.Velocity.X += dt * ship.Force.X / ship.Mass
 	ship.Velocity.Y += dt * ship.Force.Y / ship.Mass

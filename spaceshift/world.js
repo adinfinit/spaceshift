@@ -102,7 +102,7 @@ package("spaceshift", function(spaceshift){
 				context.translate(-ship.position.x, -ship.position.y);
 				context.rotate(ship.orientation);
 
-				if(ship.force.length2() < 0.1){
+				if(ship.force.length2() > 0.1){
 					context.beginPath();
 					context.moveTo(0, 0);
 					context.lineTo(-4, -2);
@@ -121,7 +121,7 @@ package("spaceshift", function(spaceshift){
 				context.closePath();
 
 				// context.strokeStyle = "hsla(0, 70%, 70%, 1)";
-				var color = (parseInt(ship.ID) * 1.618 * 360 / g.TAU) | 0;
+				var color = (parseInt(ship.id) * 1.618 * 360 / g.TAU) | 0;
 				context.fillStyle = "hsla(" + color + ", 70%, 70%, 1)";
 				context.fill();
 			}

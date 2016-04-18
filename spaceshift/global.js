@@ -11,6 +11,8 @@ package("global", function(global){
 		size: { x: 600, y: 600 }
 	};
 
+	var connected = false
+
 	global.comm = new WebSocket("ws://" + window.location.host + "/live");
 	global.comm.onmessage = listen;
 	global.comm.onopen = opened;
@@ -20,6 +22,7 @@ package("global", function(global){
 	global.world = new spaceshift.World();
 
 	function opened(){
+		connected = true
 		console.log("CONNECTION OPEN: ", opened);
 	}
 	function listen(ev){
@@ -38,10 +41,21 @@ package("global", function(global){
 		}, 500)
 	}
 
+	global.input = {
+		id: "",
+		turn: 0,
+		thrust: 0,
+		fire: false
+	};
+
 	var context = global.canvas.getContext("2d");
 	function render(){
 		context.fillStyle = "#333";
 		context.fillRect(0, 0, global.view.size.x, global.view.size.y);
+
+		if(!connected){
+			return;
+		}
 
 		context.save();
 		{
@@ -51,29 +65,35 @@ package("global", function(global){
 			context.fillStyle = "#fff";
 			context.fillRect(-1,-1,1,1);
 
-			// update player input
-			if(false){
-				global.world.player.thrust = 0;
-				global.world.player.turn = 0;
+			{
+				// update player input
+				global.input.thrust = 0;
+				global.input.turn = 0;
 				if(key.pressed[key.Code.A]){
-					global.world.player.turn -= 1;
+					global.input.turn -= 1;
 				}
 				if(key.pressed[key.Code.D]){
-					global.world.player.turn += 1;
+					global.input.turn += 1;
 				}
 				if(key.pressed[key.Code.W]){
-					global.world.player.thrust += 1;
+					global.input.thrust += 1;
 				}
 				if(key.pressed[key.Code.S]){
-					global.world.player.thrust -= 1;
+					global.input.thrust -= 1;
 				}
+
+				global.comm.send(JSON.stringify(global.input))
 			}
 
-			// update world
-			global.world.update(0.033);
+			{
+				// update world
+				global.world.update(0.033);
+			}
 
-			// render world
-			global.world.render(0.033, context);
+			{
+				// render world
+				global.world.render(0.033, context);
+			}
 		}
 		context.restore();
 	}

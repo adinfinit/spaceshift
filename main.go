@@ -57,8 +57,6 @@ func NewServer() *Server {
 
 	server.World.SpawnAI()
 	server.World.SpawnAI()
-	server.World.SpawnAI()
-	server.World.SpawnAI()
 
 	go server.World.Run()
 
@@ -76,13 +74,13 @@ func (s *Server) live(conn *websocket.Conn) {
 	defer log.Printf("LEAVE: %v\n", conn.RemoteAddr())
 	defer conn.Close()
 
-	id := s.World.GrabID()
+	id := s.World.SpawnPlayer()
 	websocket.JSON.Send(conn, &Message{
 		Type: "welcome",
 		Data: id,
 	})
 
-	time.Sleep(time.Millisecond)
+	time.Sleep(time.Second)
 
 	// in
 	go func() {
@@ -93,10 +91,13 @@ func (s *Server) live(conn *websocket.Conn) {
 				log.Println("READ ERROR:", conn, err)
 				break
 			}
+
+			input.ID = id
+			s.World.AddInput(input)
 		}
 	}()
 
-	prev := s.World.Last.Load().(*spaceshift.State)
+	var prev *spaceshift.State
 	for {
 		next := s.World.Last.Load().(*spaceshift.State)
 		if prev == next {
