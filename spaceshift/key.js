@@ -7,8 +7,10 @@ package("spaceshift.key", function(key){
 	key.Code = {
 		A: 65,
 		D: 68,
-		S: 84,
-		W: 87
+		S: 83,
+		W: 87,
+		Q: 81,
+		E: 69
 	};
 
 	window.onkeydown = function(ev){

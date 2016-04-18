@@ -184,7 +184,9 @@ type Input struct {
 	ID     ID      `json:"id"`
 	Turn   float64 `json:"turn"`   // -1, 1
 	Thrust float64 `json:"thrust"` // -1, 1
-	Fire   bool    `json:"fire"`
+
+	Fire bool `json:"fire"`
+	Dash bool `json:"dash"`
 
 	Remove bool `json:"-"`
 }
@@ -215,6 +217,20 @@ func (ship *Ship) IsInvulnerable() bool {
 func (ship *Ship) Update(dt float64, input Input) {
 	ship.Invulnerable -= dt
 	ship.Cooldown -= dt
+
+	if ship.Cooldown < 0 {
+		ship.Cooldown = 0
+	}
+
+	if ship.Cooldown <= 0 && input.Dash {
+		dir := g.V2{g.Cos(ship.Orientation), g.Sin(ship.Orientation)}
+		ship.Position = ship.Position.Add(dir.Scale(-50))
+		ship.Cooldown += 0.5
+	}
+	if ship.Cooldown <= 0 && input.Fire {
+		//
+		ship.Cooldown += 0.1
+	}
 
 	ship.Orientation += g.Tau * g.U(input.Turn) * dt
 

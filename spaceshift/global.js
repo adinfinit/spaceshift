@@ -70,6 +70,9 @@ package("global", function(global){
 				// update player input
 				global.input.thrust = 0;
 				global.input.turn = 0;
+				global.input.fire = key.pressed[key.Code.E];
+				global.input.dash = key.pressed[key.Code.Q];
+
 				if(key.pressed[key.Code.A]){
 					global.input.turn -= 1;
 				}
