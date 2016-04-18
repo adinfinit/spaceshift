@@ -35,6 +35,11 @@ func (cur *State) Clone() *State {
 		next.Ships[id] = &x
 	}
 
+	for _, bullet := range cur.Bullets {
+		b := *bullet
+		next.Bullets = append(next.Bullets, &b)
+	}
+
 	return next
 }
 
@@ -172,7 +177,7 @@ func (world *World) Update(dt float64) {
 		if input.Remove {
 			remove = append(remove, ship.ID)
 		}
-		ship.Update(dt, input)
+		ship.Update(dt, input, world)
 	}
 	for _, id := range remove {
 		delete(state.Ships, id)
@@ -218,7 +223,7 @@ func (ship *Ship) IsInvulnerable() bool {
 	return ship.Invulnerable > 0.0
 }
 
-func (ship *Ship) Update(dt float64, input Input) {
+func (ship *Ship) Update(dt float64, input Input, world *World) {
 	ship.Invulnerable -= dt
 	ship.Cooldown -= dt
 
@@ -232,7 +237,11 @@ func (ship *Ship) Update(dt float64, input Input) {
 		ship.Cooldown += 0.5
 	}
 	if ship.Cooldown <= 0 && input.Fire {
-		//
+		world.Active.Bullets = append(world.Active.Bullets, &Bullet{
+			Shooter:  ship.ID,
+			Position: ship.Position,
+			Velocity: ship.Velocity.Add(g.V2{g.Cos(ship.Orientation), g.Sin(ship.Orientation)}.Scale(-100)),
+		})
 		ship.Cooldown += 0.1
 	}
 
@@ -252,13 +261,12 @@ func (ship *Ship) Update(dt float64, input Input) {
 }
 
 type Bullet struct {
-	ID int64
-
-	Orientation float32
-	Position    g.V2
-	Velocity    g.V2
+	Shooter  ID   `json:"shooter"`
+	Position g.V2 `json:"position"`
+	Velocity g.V2 `json:"velocity"`
 }
 
 func (bullet *Bullet) Update(dt float64) {
-	//
+	bullet.Position.X += dt * bullet.Velocity.X
+	bullet.Position.Y += dt * bullet.Velocity.Y
 }

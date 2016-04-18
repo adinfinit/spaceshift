@@ -43,6 +43,19 @@ package("spaceshift", function(spaceshift){
 				world.ships[ship.id] = ship;
 			});
 
+			world.bullets = [];
+			for(var i = 0; i < state.bullets.length; i++){
+				var sbullet = state.bullets[i];
+				var bullet = new Bullet();
+				bullet.shooter = sbullet.shooter;
+				bullet.position.x = sbullet.position.x;
+				bullet.position.y = sbullet.position.y;
+				bullet.velocity.x = sbullet.velocity.x;
+				bullet.velocity.y = sbullet.velocity.y;
+
+				world.bullets.push(bullet);
+			}
+
 			world.halfsize.x = state.halfsize.x;
 			world.halfsize.y = state.halfsize.y;
 		},
@@ -59,8 +72,10 @@ package("spaceshift", function(spaceshift){
 
 
 			foreach(world.ships, function(ship){ ship.render(dt, context); });
-			//Object.values(world.bullets).
-			//	forEach(function(bullet){ bullet.render(dt, context); });
+			for(var i = 0; i < world.bullets.length; i++){
+				var bullet = world.bullets[i];
+				bullet.render(dt, context);
+			}
 		}
 	};
 
@@ -180,6 +195,38 @@ package("spaceshift", function(spaceshift){
 					context.strokeStyle = "hsla(0, 100%, 50%, " + cooldown + ")";
 					context.stroke();
 				}
+			}
+			context.restore();
+		}
+	};
+
+	spaceshift.Bullet = Bullet;
+	function Bullet(){
+		this.shooter = "";
+		this.position = new g.V2(0, 0);
+		this.velocity = new g.V2(0, 0);
+	}
+
+	Bullet.prototype = {
+		update: function(dt){
+			var bullet = this;
+
+			bullet.position.x += dt * bullet.velocity.x;
+			bullet.position.y += dt * bullet.velocity.y;
+		},
+		render: function(dt, context){
+			var bullet = this;
+
+			context.save();
+			{
+				context.translate(-bullet.position.x, -bullet.position.y);
+
+				context.beginPath()
+				context.arc(0, 0, 1, 0, g.TAU);
+
+				var color = (parseInt(bullet.shooter) * 1.618 * 360 / g.TAU) | 0;
+				context.fillStyle = "hsla(" + color + ", 70%, 70%, 1)";
+				context.fill();
 			}
 			context.restore();
 		}
