@@ -75,6 +75,8 @@ func (s *Server) live(conn *websocket.Conn) {
 	defer conn.Close()
 
 	id := s.World.SpawnPlayer()
+	defer s.World.RemovePlayer(id)
+
 	websocket.JSON.Send(conn, &Message{
 		Type: "welcome",
 		Data: id,
@@ -84,6 +86,7 @@ func (s *Server) live(conn *websocket.Conn) {
 
 	// in
 	go func() {
+		defer conn.Close()
 		for {
 			var input spaceshift.Input
 			err := websocket.JSON.Receive(conn, &input)

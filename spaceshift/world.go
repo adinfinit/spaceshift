@@ -2,7 +2,6 @@ package spaceshift
 
 import (
 	"fmt"
-	"log"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -108,6 +107,10 @@ func (world *World) SpawnPlayer() ID {
 	return id
 }
 
+func (world *World) RemovePlayer(id ID) {
+	world.AddInput(Input{ID: id, Remove: true})
+}
+
 func (world *World) Run() {
 	for range time.Tick(33 * time.Millisecond) {
 		world.NextMu.Lock()
@@ -127,8 +130,18 @@ func (world *World) Run() {
 func (world *World) Update(dt float64) {
 	state := world.Active
 
+	remove := []ID{}
 	for _, ship := range state.Ships {
-		ship.Update(dt, state.Input[ship.ID])
+		input := state.Input[ship.ID]
+		if input.Remove {
+			remove = append(remove, ship.ID)
+		}
+		ship.Update(dt, input)
+	}
+
+	for _, id := range remove {
+		delete(state.Ships, id)
+		delete(state.Input, id)
 	}
 	for _, bullet := range state.Bullets {
 		bullet.Update(dt)
@@ -140,6 +153,8 @@ type Input struct {
 	Turn   float64 `json:"turn"`   // -1, 1
 	Thrust float64 `json:"thrust"` // -1, 1
 	Fire   bool    `json:"fire"`
+
+	Remove bool `json:"-"`
 }
 
 type Ship struct {
@@ -160,10 +175,6 @@ func (ship *Ship) Update(dt float64, input Input) {
 
 	ship.Force.X = -10000 * g.U(input.Thrust) * g.Cos(ship.Orientation)
 	ship.Force.Y = -10000 * g.U(input.Thrust) * g.Sin(ship.Orientation)
-
-	if !ship.AI {
-		log.Println(input.ID, input.Thrust, ship.Force.X, ship.Force.Y)
-	}
 
 	ship.Velocity.X += dt * ship.Force.X / ship.Mass
 	ship.Velocity.Y += dt * ship.Force.Y / ship.Mass
