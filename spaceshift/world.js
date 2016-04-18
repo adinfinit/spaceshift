@@ -102,8 +102,8 @@ package("spaceshift", function(spaceshift){
 				context.translate(-ship.position.x, -ship.position.y);
 
 				context.fillStyle = "#ccc";
-				context.font = "8px Courier";
-				context.fillText(ship.id, -6, -6);
+				context.font = (12 / context.SCALE) + "px Courier";
+				context.fillText(ship.id, -5, -5);
 
 				context.rotate(ship.orientation);
 
@@ -125,7 +125,6 @@ package("spaceshift", function(spaceshift){
 				context.lineTo( 4,  0.0);
 				context.closePath();
 
-				// context.strokeStyle = "hsla(0, 70%, 70%, 1)";
 				var color = (parseInt(ship.id) * 1.618 * 360 / g.TAU) | 0;
 				context.fillStyle = "hsla(" + color + ", 70%, 70%, 1)";
 				context.fill();

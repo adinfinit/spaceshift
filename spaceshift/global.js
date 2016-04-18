@@ -60,7 +60,8 @@ package("global", function(global){
 		context.save();
 		{
 			context.translate(global.view.size.x/2, global.view.size.y/2);
-			context.scale(2,2);
+			context.SCALE = 2;
+			context.scale(context.SCALE,context.SCALE);
 
 			context.fillStyle = "#fff";
 			context.fillRect(-1,-1,1,1);
