@@ -99,6 +99,7 @@ func (world *World) SpawnAI() {
 	world.Active.Input[ship.ID] = Input{
 		Thrust: 1,
 		Turn:   1,
+		Fire:   true,
 	}
 	world.Active.Ships[ship.ID] = ship
 }
@@ -271,10 +272,6 @@ func (ship *Ship) Update(dt float64, input Input, world *World) {
 
 	if ship.Energy < 1 {
 		ship.Energy += dt * 0.05
-	}
-
-	if ship.AI {
-		ship.Energy -= dt * 0.2
 	}
 
 	if ship.Energy < 0 && !ship.Exploded {

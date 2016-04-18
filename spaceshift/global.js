@@ -123,7 +123,11 @@ package("global", function(global){
 		context.font = "14px Courier";
 		for(var i = 0; i < ships.length; i++){
 			var ship = ships[i];
-			context.fillText(ship.id + " = " + ship.points, x, y);
+			if(ship.ai){
+				context.fillText(ship.id + " = " + ship.points + "[AI]", x, y);
+			} else {
+				context.fillText(ship.id + " = " + ship.points, x, y);
+			}
 			y += 16;
 		}
 

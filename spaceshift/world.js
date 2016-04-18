@@ -43,6 +43,8 @@ package("spaceshift", function(spaceshift){
 
 				ship.points = sship.points;
 
+				ship.ai = sship.ai;
+
 				world.ships[ship.id] = ship;
 			});
 
@@ -105,6 +107,8 @@ package("spaceshift", function(spaceshift){
 		this.invulnerable = 3;
 		this.exploded = false;
 		this.points = 0;
+
+		this.ai = false;
 	}
 
 	Ship.prototype = {
