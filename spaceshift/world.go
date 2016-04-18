@@ -103,10 +103,8 @@ func (world *World) SpawnAI() {
 	world.Active.Ships[ship.ID] = ship
 }
 
-func (world *World) SpawnPlayer() ID {
-	id := world.GrabID()
-
-	ship := &Ship{
+func PlayerDefaults(id ID) Ship {
+	return Ship{
 		ID: id,
 
 		Orientation: g.R(0, g.Tau),
@@ -119,8 +117,14 @@ func (world *World) SpawnPlayer() ID {
 		Cooldown:     1,
 		Invulnerable: 3,
 	}
+}
+
+func (world *World) SpawnPlayer() ID {
+	id := world.GrabID()
+
+	ship := PlayerDefaults(id)
 	world.Active.Input[ship.ID] = Input{}
-	world.Active.Ships[ship.ID] = ship
+	world.Active.Ships[ship.ID] = &ship
 
 	return id
 }
@@ -198,6 +202,11 @@ func (world *World) Update(dt float64) {
 				ship.Energy -= 0.1
 				removebullet = true
 			}
+
+			shooter, ok := world.Active.Ships[bullet.Shooter]
+			if ok {
+				shooter.Points += 1
+			}
 		}
 
 		if removebullet {
@@ -234,11 +243,13 @@ type Ship struct {
 
 	AI bool `json:"ai"`
 
+	Points       int64   `json:"points"`
 	Energy       float64 `json:"energy"`       // 0..1
 	Cooldown     float64 `json:"cooldown"`     // in seconds
 	Invulnerable float64 `json:"invulnerable"` // in seconds
 
-	Exploded bool `json:"exploded"`
+	Exploded   bool    `json:"exploded"`
+	ResetAfter float64 `json:"-"`
 }
 
 func (ship *Ship) ClearForces() {
@@ -247,6 +258,12 @@ func (ship *Ship) ClearForces() {
 
 func (ship *Ship) IsInvulnerable() bool {
 	return ship.Invulnerable > 0.0
+}
+
+func (ship *Ship) Reset() {
+	next := PlayerDefaults(ship.ID)
+	next.AI = ship.AI
+	*ship = next
 }
 
 func (ship *Ship) Update(dt float64, input Input, world *World) {
@@ -261,8 +278,17 @@ func (ship *Ship) Update(dt float64, input Input, world *World) {
 		ship.Energy -= dt * 0.2
 	}
 
-	if ship.Energy < 0 {
+	if ship.Energy < 0 && !ship.Exploded {
 		ship.Exploded = true
+		ship.ResetAfter = 3
+	}
+	if ship.Exploded {
+		ship.ResetAfter -= dt
+		if ship.ResetAfter < 0 {
+			ship.Reset()
+			return
+		}
+		return
 	}
 
 	if ship.Cooldown < 0 {
