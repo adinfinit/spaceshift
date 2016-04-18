@@ -80,6 +80,10 @@ func (world *World) SpawnAI() {
 		Force:       g.V2{0, 0},
 		Mass:        100,
 
+		Energy:       1,
+		Cooldown:     1,
+		Invulnerable: 3,
+
 		AI: true,
 	}
 	world.Active.Input[ship.ID] = Input{
@@ -100,6 +104,10 @@ func (world *World) SpawnPlayer() ID {
 		Velocity:    g.V2{0, 0},
 		Force:       g.V2{0, 0},
 		Mass:        100,
+
+		Energy:       1,
+		Cooldown:     1,
+		Invulnerable: 3,
 	}
 	world.Active.Input[ship.ID] = Input{}
 	world.Active.Ships[ship.ID] = ship
@@ -189,14 +197,25 @@ type Ship struct {
 	Force       g.V2    `json:"force"`
 	Mass        float64 `json:"mass"`
 
-	AI bool
+	AI bool `json:"ai"`
+
+	Energy       float64 `json:"energy"`       // 0..1
+	Cooldown     float64 `json:"cooldown"`     // in seconds
+	Invulnerable float64 `json:"invulnerable"` // in seconds
 }
 
 func (ship *Ship) ClearForces() {
 	ship.Force = g.V2{}
 }
 
+func (ship *Ship) IsInvulnerable() bool {
+	return ship.Invulnerable > 0.0
+}
+
 func (ship *Ship) Update(dt float64, input Input) {
+	ship.Invulnerable -= dt
+	ship.Cooldown -= dt
+
 	ship.Orientation += g.Tau * g.U(input.Turn) * dt
 
 	ship.Force.X += -10000 * g.U(input.Thrust) * g.Cos(ship.Orientation)

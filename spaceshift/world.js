@@ -34,6 +34,10 @@ package("spaceshift", function(spaceshift){
 				ship.force.y = sship.force.y;
 				ship.mass = sship.mass;
 
+				ship.energy = sship.energy;
+				ship.cooldown = sship.cooldown;
+				ship.invulnerable = sship.invulnerable;
+
 				world.ships[ship.id] = ship;
 			})
 		},
@@ -64,9 +68,9 @@ package("spaceshift", function(spaceshift){
 		this.force = new g.V2(0,0);
 		this.mass = 100;
 
-		// inputs
-		this.thrust = 0; // between -1, 1
-		this.turn = 0; // between -1, 1
+		this.energy = 1;
+		this.cooldown = 1;
+		this.invulnerable = 3;
 	}
 
 	Ship.prototype = {
@@ -79,6 +83,9 @@ package("spaceshift", function(spaceshift){
 		update: function(dt){
 			var ship = this;
 			ship.resetForce();
+
+			this.cooldown -= dt;
+			this.invulnerable -= dt;
 
 			ship.force.x = -10000 * ship.thrust * Math.cos(ship.orientation);
 			ship.force.y = -10000 * ship.thrust * Math.sin(ship.orientation);
@@ -101,9 +108,34 @@ package("spaceshift", function(spaceshift){
 			{
 				context.translate(-ship.position.x, -ship.position.y);
 
+				if(ship.invulnerable > 0) {
+					context.beginPath()
+					context.arc(0, 0, 10, 0, g.TAU);
+
+					var alpha = ship.invulnerable > 1 ? 1 : ship.invulnerable;
+					context.strokeStyle = "hsla(" + (g.R(90, 150)|0) + ", 80%, 80%, " + alpha + ")";
+					context.stroke();
+				}
+
+				{
+					var W = 16, H = 1;
+					ship.energy = 0.3;
+					var w = W * ship.energy;
+					context.beginPath();
+					context.rect(-W/2, -8, w, H);
+					context.fillStyle = "#aaf";
+					context.fill();
+
+					context.beginPath();
+					context.rect(-W/2, -8, W, H);
+					context.strokeStyle = "#aaf";
+					context.lineWidth = 0.1;
+					context.stroke();
+				}
+
 				context.fillStyle = "#ccc";
 				context.font = (12 / context.SCALE) + "px Courier";
-				context.fillText(ship.id, -5, -5);
+				context.fillText(ship.id, -14, -5);
 
 				context.rotate(ship.orientation);
 
