@@ -12,7 +12,7 @@ import (
 type ID string
 
 type State struct {
-	Input   map[ID]Input `json:"input"`
+	Input   map[ID]Input `json:"-"`
 	Ships   map[ID]*Ship `json:"ships"`
 	Bullets []*Bullet    `json:"bullets"`
 }
@@ -130,6 +130,30 @@ func (world *World) Run() {
 func (world *World) Update(dt float64) {
 	state := world.Active
 
+	ships := make([]*Ship, 0, len(state.Ships))
+	for _, ship := range state.Ships {
+		ship.ClearForces()
+		ships = append(ships, ship)
+	}
+
+	for i, a := range ships {
+		for _, b := range ships[i+1:] {
+			delta := a.Position.Sub(b.Position)
+			const R = 6
+			if delta.Len() < R {
+				if delta.Len() < 0.001 {
+					delta = g.V2{1, 1}
+				}
+				delta = delta.Scale(R * 0.5 / delta.Len())
+				a.Position = a.Position.Add(delta)
+				b.Position = b.Position.Add(delta.Neg())
+
+				a.Force = delta.Scale(10000)
+				b.Force = delta.Scale(-10000)
+			}
+		}
+	}
+
 	remove := []ID{}
 	for _, ship := range state.Ships {
 		input := state.Input[ship.ID]
@@ -138,11 +162,11 @@ func (world *World) Update(dt float64) {
 		}
 		ship.Update(dt, input)
 	}
-
 	for _, id := range remove {
 		delete(state.Ships, id)
 		delete(state.Input, id)
 	}
+
 	for _, bullet := range state.Bullets {
 		bullet.Update(dt)
 	}
@@ -168,13 +192,15 @@ type Ship struct {
 	AI bool
 }
 
-func (ship *Ship) Update(dt float64, input Input) {
+func (ship *Ship) ClearForces() {
 	ship.Force = g.V2{}
+}
 
+func (ship *Ship) Update(dt float64, input Input) {
 	ship.Orientation += g.Tau * g.U(input.Turn) * dt
 
-	ship.Force.X = -10000 * g.U(input.Thrust) * g.Cos(ship.Orientation)
-	ship.Force.Y = -10000 * g.U(input.Thrust) * g.Sin(ship.Orientation)
+	ship.Force.X += -10000 * g.U(input.Thrust) * g.Cos(ship.Orientation)
+	ship.Force.Y += -10000 * g.U(input.Thrust) * g.Sin(ship.Orientation)
 
 	ship.Velocity.X += dt * ship.Force.X / ship.Mass
 	ship.Velocity.Y += dt * ship.Force.Y / ship.Mass
