@@ -10,7 +10,15 @@ package("spaceshift.key", function(key){
 		S: 83,
 		W: 87,
 		Q: 81,
-		E: 69
+		E: 69,
+
+		Left: 37,
+		Right: 39,
+		Up: 38,
+		Down: 40,
+
+		Space: 32,
+		Shift: 16
 	};
 
 	window.onkeydown = function(ev){

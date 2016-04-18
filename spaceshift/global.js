@@ -75,8 +75,8 @@ package("global", function(global){
 				// update player input
 				global.input.thrust = 0;
 				global.input.turn = 0;
-				global.input.fire = key.pressed[key.Code.E];
-				global.input.dash = key.pressed[key.Code.Q];
+				global.input.fire = key.pressed[key.Code.E] || key.pressed[key.Code.Space];
+				global.input.dash = key.pressed[key.Code.Q] || key.pressed[key.Code.Shift];
 
 				if(key.pressed[key.Code.A]){
 					global.input.turn -= 1;
@@ -88,6 +88,19 @@ package("global", function(global){
 					global.input.thrust += 1;
 				}
 				if(key.pressed[key.Code.S]){
+					global.input.thrust -= 1;
+				}
+
+				if(key.pressed[key.Code.Left]){
+					global.input.turn -= 1;
+				}
+				if(key.pressed[key.Code.Right]){
+					global.input.turn += 1;
+				}
+				if(key.pressed[key.Code.Up]){
+					global.input.thrust += 1;
+				}
+				if(key.pressed[key.Code.Down]){
 					global.input.thrust -= 1;
 				}
 
