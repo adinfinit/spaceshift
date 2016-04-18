@@ -105,6 +105,38 @@ package("global", function(global){
 			}
 		}
 		context.restore();
+
+		var ships = [];
+		foreach(global.world.ships, function(ship){
+			ships.push(ship);
+		});
+
+		ships.sort(function(a,b){
+			return a.points < b.points;
+		});
+
+
+		var y = 28;
+		var x = 20;
+
+		context.fillStyle = "#FFF";
+		context.font = "14px Courier";
+		for(var i = 0; i < ships.length; i++){
+			var ship = ships[i];
+			context.fillText(ship.id + " = " + ship.points, x, y);
+			y += 16;
+		}
+
+		context.fillStyle = "hsla(0,0%,100%,0.1)";
+		context.fillRect(10, 10, 150, y - 14);
+	}
+
+	function foreach(obj, fn){
+		for(var name in obj){
+			if(obj.hasOwnProperty(name)){
+				fn(obj[name]);
+			}
+		}
 	}
 
 	window.setInterval(render, 30);

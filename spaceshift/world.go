@@ -202,14 +202,13 @@ func (world *World) Update(dt float64) {
 				ship.Energy -= 0.1
 				removebullet = true
 			}
+		}
 
+		if removebullet {
 			shooter, ok := world.Active.Ships[bullet.Shooter]
 			if ok {
 				shooter.Points += 1
 			}
-		}
-
-		if removebullet {
 			continue
 		}
 

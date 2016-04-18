@@ -41,6 +41,8 @@ package("spaceshift", function(spaceshift){
 				ship.invulnerable = sship.invulnerable;
 				ship.exploded = sship.exploded;
 
+				ship.points = sship.points;
+
 				world.ships[ship.id] = ship;
 			});
 
@@ -102,6 +104,7 @@ package("spaceshift", function(spaceshift){
 		this.cooldown = 1;
 		this.invulnerable = 3;
 		this.exploded = false;
+		this.points = 0;
 	}
 
 	Ship.prototype = {
