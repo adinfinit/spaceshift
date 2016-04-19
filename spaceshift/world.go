@@ -326,14 +326,14 @@ func (ship *Ship) Update(dt float64, input Input, world *World) {
 
 	ship.Orientation += g.Tau * g.U(input.Turn) * dt
 
-	ship.Force.X += -10000 * g.U(input.Thrust) * g.Cos(ship.Orientation)
-	ship.Force.Y += -10000 * g.U(input.Thrust) * g.Sin(ship.Orientation)
+	ship.Force.X += -40000 * g.U(input.Thrust) * g.Cos(ship.Orientation)
+	ship.Force.Y += -40000 * g.U(input.Thrust) * g.Sin(ship.Orientation)
 
 	ship.Velocity.X += dt * ship.Force.X / ship.Mass
 	ship.Velocity.Y += dt * ship.Force.Y / ship.Mass
 
-	ship.Velocity.X *= 0.99
-	ship.Velocity.Y *= 0.99
+	ship.Velocity.X *= 0.9
+	ship.Velocity.Y *= 0.9
 
 	ship.Position.X += dt * ship.Velocity.X
 	ship.Position.Y += dt * ship.Velocity.Y
