@@ -11,3 +11,5 @@ A (non-entry) game written during a LD35 event.
 * Better serialization
 * Better graphics
 * Rewrite web-side in Go
+* Add better UI
+* Add nicknames
